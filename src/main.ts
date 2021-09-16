@@ -83,12 +83,12 @@ async function run() {
         //some err occurred
         console.error(err)
       } else {
-          // the *entire* stdout and stderr (buffered)
-          console.log(`stdout: ${stdout}`);
-          myOutput = myOutput+`${stdout}`.trim();
-          console.log(`stderr: ${stderr}`);
-        }
-      });
+        // the *entire* stdout and stderr (buffered)
+        console.log(`stdout: ${stdout}`);
+        myOutput = myOutput+`${stdout}`.trim();
+        console.log(`stderr: ${stderr}`);
+      }
+    });
 
 
     // only contents of workspace can be changed by actions and used by subsequent actions 
