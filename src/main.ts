@@ -4,6 +4,7 @@ const exec = require('@actions/exec');
 const io = require('@actions/io');
 const cp = require('child_process');
 const fs = require('fs');
+const path = require('path');
 
 async function run() {
   try {
@@ -41,7 +42,9 @@ async function run() {
     await exec.exec('rpmdev-setuptree');
 
     // Copy spec file from path specFile to /root/rpmbuild/SPECS/
-    await exec.exec(`cp /github/workspace/${specFile} /github/home/rpmbuild/SPECS/`);
+    const specFileBasename = path.basename(specFile);
+    const mySpecFile = `/github/home/rpmbuild/SPECS/${specFileBasename}`;
+    await exec.exec(`cp /github/workspace/${specFile} ${mySpecFile}`);
 
     // Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
     //await exec.exec(`curl -H "'Accept: application/vnd.github.v3+json'" -L --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
@@ -64,7 +67,7 @@ async function run() {
     // Execute rpmbuild , -ba generates both RPMS and SPRMS
     try {
       await exec.exec(
-        `rpmbuild -bb /github/home/rpmbuild/SPECS/${specFile}`
+        `rpmbuild -bb ${mySpecFile}`
       );
     } catch (err) {
       core.setFailed(`action failed with error: ${err}`);
@@ -99,7 +102,7 @@ async function run() {
     // await exec.exec(`cp /github/home/rpmbuild/SRPMS/${myOutput} rpmbuild/SRPMS`);
     await cp.exec(`cp -R /github/home/rpmbuild/RPMS/. rpmbuild/RPMS/`);
 
-    await exec.exec(`ls -la rpmbuild/SRPMS`);
+    // await exec.exec(`ls -la rpmbuild/SRPMS`);
     await exec.exec(`ls -la rpmbuild/RPMS`);
     
     // set outputs to path relative to workspace ex ./rpmbuild/
