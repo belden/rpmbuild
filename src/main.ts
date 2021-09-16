@@ -44,7 +44,7 @@ async function run() {
     await exec.exec(`cp /github/workspace/${specFile} /github/home/rpmbuild/SPECS/`);
 
     // Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
-    await exec.exec(`curl -L --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
+    await exec.exec(`curl -H "'Accept: application/vnd.github.v3+json'" -L --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
 
     // create directory to match source file - %{name}-{version}.tar.gz of spec file
     await exec.exec(`mkdir ${name}-${version}`);
