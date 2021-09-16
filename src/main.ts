@@ -61,11 +61,14 @@ async function run() {
 
     // Execute rpmbuild , -ba generates both RPMS and SPRMS
     try {
+      process.env.__RPMBUILD_WORKSPACE__ = '/github/workspace/';
       await exec.exec(
         `rpmbuild -ba ${mySpecFile}`
       );
     } catch (err) {
       core.setFailed(`action failed with error: ${err}`);
+    } finally {
+      delete process.env.__RPMBUILD_WORKSPACE__;
     }
 
     // Verify RPM is created
