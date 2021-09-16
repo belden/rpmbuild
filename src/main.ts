@@ -55,7 +55,7 @@ async function run() {
 
     // Create Source tar.gz file 
     await exec.exec(`ls -alF /github/home/rpmbuild/SOURCES/`);
-    await exec.exec(`cd /github/home/rpmbuild/SOURCES/ && tar czvf ${name}-${version}.tar.gz ${name}-${version}`);
+    await exec.exec(`tar czf /github/home/rpmbuild/SOURCES/${name}-${version}.tar.gz -C /github/home/rpmbuild/SOURCES/ ${name}-${version}`);
     await exec.exec(`rm -rf /github/home/rpmbuild/SOURCES/${name}-${version}/`);
     await exec.exec(`ls -alF /github/home/rpmbuild/SOURCES/`);
 
