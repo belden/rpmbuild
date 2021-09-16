@@ -47,20 +47,15 @@ async function run() {
     await exec.exec(`cp /github/workspace/${specFile} ${mySpecFile}`);
 
     // create directory to match source file - %{name}-{version}.tar.gz of spec file
-    await exec.exec(`mkdir ${name}-${version}`);
+    await exec.exec(`mkdir /github/home/rpmbuild/SOURCES/${name}-${version}`);
 
     // instead of downloading code from github, just copy the current repo and clean it up a little
-    await exec.exec(`cp -r /github/workspace/ ${name}-${version}/`);
-    await exec.exec(`rm -rf ${name}-${version}/.git/`);
+    await exec.exec(`cp -r /github/workspace/ /github/home/rpmbuild/SOURCES/${name}-${version}/`);
+    await exec.exec(`rm -rf /github/home/rpmbuild/SOURCES/${name}-${version}/.git/`);
 
     // Create Source tar.gz file 
-    await exec.exec(`tar -czvf ${name}-${version}.tar.gz ${name}-${version}`);
-
-    // list files in current directory /github/workspace/
-    await exec.exec('ls -la ');
-
-    // Copy tar.gz file to source path
-    await exec.exec(`cp ${name}-${version}.tar.gz /github/home/rpmbuild/SOURCES/`);
+    await exec.exec(`cd /github/home/rpmbuild/SOURCES/ && tar czvf ${name}-${version}.tar.gz ${name}-${version}`);
+    await exec.exec(`rm -rf /github/home/rpmbuild/SOURCES/${name}-${version}/`);
 
     // Execute rpmbuild , -ba generates both RPMS and SPRMS
     try {
