@@ -18,6 +18,9 @@ RUN tar --strip-components 1 -xvf node-v* -C /usr/local
 # Install all dependecies to execute main.js
 RUN npm install --production
 
+# Rebuild typescript src/main.ts into lib/main.ts
+RUN npm run-script build
+
 # All remaining logic goes inside main.js , 
 # where we have access to both tools of this container and 
 # contents of git repo at /github/workspace
