@@ -55,8 +55,11 @@ async function run() {
 
     // Create Source tar.gz file 
     await exec.exec(`ls -alF /github/home/rpmbuild/SOURCES/`);
-    await exec.exec(`tar czf /github/home/rpmbuild/SOURCES/${name}-${version}.tar.gz -C /github/home/rpmbuild/SOURCES/ ${name}-${version}`);
-    await exec.exec(`rm -rf /github/home/rpmbuild/SOURCES/${name}-${version}/`);
+    const oldGitDir = process.env.GIT_DIR;
+    process.env.GIT_DIR = '/github/workspace/.git';
+    await exec.exec(`git archive --output=/github/home/rpmbuild/SOURCES/${name}-${version}.tar.gz HEAD`);
+    process.env.GIT_DIR = oldGitDir;
+
     await exec.exec(`ls -alF /github/home/rpmbuild/SOURCES/`);
 
     // Execute rpmbuild , -ba generates both RPMS and SPRMS
