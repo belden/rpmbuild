@@ -4,6 +4,7 @@ const exec = require('@actions/exec');
 const io = require('@actions/io');
 const cp = require('child_process');
 const fs = require('fs');
+const path = require('path');
 
 async function run() {
   try {
@@ -18,10 +19,15 @@ async function run() {
 
     // get inputs from workflow
     // specFile name
-    const specFile = core.getInput('spec_file');
+    const configPath = core.getInput('spec_file'); // user input, eg: `foo.spec' or `rpm/foo.spec'
+    const basename = path.basename(configPath); // always just `foo.spec`
+    const specFile = {
+      srcFullPath: `/github/workspace/${configPath}`,
+      destFullPath: `/github/home/rpmbuild/SPECS/${basename}`,
+    };
 
     // Read spec file and get values 
-    var data = fs.readFileSync(specFile, 'utf8');
+    var data = fs.readFileSync(specFile.srcFullPath, 'utf8');
     let name = '';       
     let version = '';
 
@@ -41,7 +47,7 @@ async function run() {
     await exec.exec('rpmdev-setuptree');
 
     // Copy spec file from path specFile to /github/home/rpmbuild/SPECS/
-    await exec.exec(`cp /github/workspace/${specFile} /github/home/rpmbuild/SPECS/`);
+    await exec.exec(`cp ${specFile.srcFullPath} ${specFile.destFullPath}`);
 
     // Dowload tar.gz file of source code,  Reference : https://developer.github.com/v3/repos/contents/#get-archive-link
     await exec.exec(`curl -L --output tmp.tar.gz https://api.github.com/repos/${owner}/${repo}/tarball/${ref}`)
@@ -64,7 +70,7 @@ async function run() {
     // Execute rpmbuild , -ba generates both RPMS and SPRMS
     try {
       await exec.exec(
-        `rpmbuild -ba /github/home/rpmbuild/SPECS/${specFile}`
+        `rpmbuild -ba ${specFile.destFullPath}`
       );
     } catch (err) {
       core.setFailed(`action failed with error: ${err}`);
